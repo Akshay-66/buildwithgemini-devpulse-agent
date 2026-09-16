@@ -33,18 +33,19 @@ async def record():
         
         # Wait for reply
         print("Waiting for response to Prompt 1...")
-        await page.wait_for_timeout(10000)
+        await page.wait_for_timeout(15000)
 
         # Prompt 2: Richer prompt showing off tool call / database lookup / image generation
-        prompt_2 = "Generate a visual system architecture diagram for our server status monitor and check PyPI package information for fastapi."
+        prompt_2 = "Generate a short architecture diagram video for our server status monitor."
         print(f"Typing Prompt 2: {prompt_2}")
         await page.fill("#input", prompt_2)
         await page.wait_for_timeout(1000)
         await page.click("button")
 
-        # Wait for reply and image rendering
+        # Wait for reply and video rendering
         print("Waiting for response to Prompt 2...")
-        await page.wait_for_timeout(15000)
+        await page.wait_for_selector("video", timeout=90000)
+        await page.wait_for_timeout(5000) # Give video a few seconds to play
 
         video_path = await page.video.path()
         print("Video recorded to:", video_path)
