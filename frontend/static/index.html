@@ -7,6 +7,7 @@
 <!-- Optional: used only to draw A2UI Icon components. If it can't load (offline/
      corp network), icons fall back to showing their name as text. -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   :root { --accent:#1a73e8; --bg:#f6f8fa; --border:#dfe3e8; }
   * { box-sizing:border-box; }
@@ -176,11 +177,20 @@ function renderReply(b, parts) {
   const a2ui = parts.filter(p => p && p.kind === "a2ui" && p.data).map(p => p.data);
 
   const textStr = texts.join("\n").trim();
-  if (textStr) b.appendChild(el("div", null, textStr));
+  if (textStr) {
+    const textDiv = el("div");
+    // Parse markdown into HTML if marked is available, otherwise fallback to plain text
+    textDiv.innerHTML = typeof marked !== "undefined" ? marked.parse(textStr) : textStr;
+    b.appendChild(textDiv);
+  }
 
   if (a2ui.length) {
     b.classList.add("rich");
-    if (!renderSurface(a2ui, b)) b.appendChild(el("div", null, flattenText(a2ui) || "(no card content)"));
+    if (!renderSurface(a2ui, b)) {
+      const fallbackDiv = el("div");
+      fallbackDiv.innerHTML = typeof marked !== "undefined" ? marked.parse(flattenText(a2ui) || "(no card content)") : flattenText(a2ui) || "(no card content)";
+      b.appendChild(fallbackDiv);
+    }
   }
   if (!b.childNodes.length) b.textContent = "(no response)";
   log.scrollTop = log.scrollHeight;
